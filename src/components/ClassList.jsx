@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SearchBar from './SearchBar';
 import { getScoreColor } from '../utils/constants';
 
-export default function ClassList({ classes, onSelectClass, onDeleteClass }) {
+export default function ClassList({ classes, onSelectClass, onDeleteClass, displayName, onLogout }) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredClasses = searchQuery.trim()
@@ -23,6 +23,24 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass }) {
             {/* Header */}
             <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50 px-4 pt-6 pb-4">
                 <div className="max-w-lg mx-auto">
+                    {/* User bar */}
+                    {displayName && (
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                                    <span className="text-white text-sm font-bold">{displayName.charAt(0).toUpperCase()}</span>
+                                </div>
+                                <span className="text-slate-300 text-sm">Merhaba, <span className="font-medium text-white">{displayName}</span></span>
+                            </div>
+                            <button
+                                onClick={onLogout}
+                                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-sm transition-colors"
+                            >
+                                Çıkış
+                            </button>
+                        </div>
+                    )}
+
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h1 className="text-2xl font-bold text-white">Sınıflar</h1>

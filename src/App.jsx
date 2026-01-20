@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { AuthProvider, useAuth } from './hooks/useAuth';
 import { useAppData } from './hooks/useAppData';
 import { getScoreColor } from './utils/constants';
+import LoginPage from './components/LoginPage';
 import ClassList from './components/ClassList';
 import StudentList from './components/StudentList';
 import StudentDetail from './components/StudentDetail';
@@ -9,7 +11,8 @@ import AddClassModal from './components/AddClassModal';
 import AddStudentModal from './components/AddStudentModal';
 import BottomNavbar from './components/BottomNavbar';
 
-export default function App() {
+function AppContent() {
+  const { isAuthenticated, isLoading: authLoading, logout, getDisplayName } = useAuth();
   const {
     classes,
     criteria,
@@ -21,7 +24,6 @@ export default function App() {
     deleteStudent,
     getStudent,
     updateScore,
-    searchStudents,
     addCriteria,
     deleteCriteria,
     updateCriteria,
@@ -29,13 +31,45 @@ export default function App() {
     getMaxTotal
   } = useAppData();
 
-  const [currentPage, setCurrentPage] = useState('classes'); // classes, students, detail, settings
+  const [currentPage, setCurrentPage] = useState('classes');
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [isClassModalOpen, setIsClassModalOpen] = useState(false);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
-  // Toplam öğrenci sayısı
+  // Auth yükleniyor
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse">
+            <span className="text-3xl">📚</span>
+          </div>
+          <p className="text-slate-400">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Giriş yapmamış
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
+  // Veri yükleniyor
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse">
+            <span className="text-3xl">📚</span>
+          </div>
+          <p className="text-slate-400">Veriler yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   const totalStudents = classes.reduce((sum, c) => sum + (c.students?.length || 0), 0);
 
   const handleSelectClass = (classId) => {
@@ -80,28 +114,6 @@ export default function App() {
     }
   };
 
-  const handleAddClick = () => {
-    if (currentPage === 'classes') {
-      setIsClassModalOpen(true);
-    } else if (currentPage === 'students') {
-      setIsStudentModalOpen(true);
-    }
-  };
-
-  // Yükleme ekranı
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse">
-            <span className="text-3xl">📚</span>
-          </div>
-          <p className="text-slate-400">Yükleniyor...</p>
-        </div>
-      </div>
-    );
-  }
-
   const selectedClass = selectedClassId ? getClass(selectedClassId) : null;
   const selectedStudent = selectedClassId && selectedStudentId
     ? getStudent(selectedClassId, selectedStudentId)
@@ -115,6 +127,8 @@ export default function App() {
           classes={classes}
           onSelectClass={handleSelectClass}
           onDeleteClass={deleteClass}
+          displayName={getDisplayName()}
+          onLogout={logout}
         />
       )}
 
@@ -153,12 +167,12 @@ export default function App() {
         />
       )}
 
-      {/* Alt Navigasyon (detail sayfasında gizle) */}
+      {/* Alt Navigasyon */}
       {currentPage !== 'detail' && currentPage !== 'students' && (
         <BottomNavbar
           currentPage={currentPage}
           onNavigate={handleNavigate}
-          onAddStudent={handleAddClick}
+          onAddStudent={() => setIsClassModalOpen(true)}
         />
       )}
 
@@ -204,19 +218,26 @@ export default function App() {
         </nav>
       )}
 
-      {/* Sınıf Ekleme Modalı */}
+      {/* Modallar */}
       <AddClassModal
         isOpen={isClassModalOpen}
         onClose={() => setIsClassModalOpen(false)}
         onAdd={handleAddClass}
       />
 
-      {/* Öğrenci Ekleme Modalı */}
       <AddStudentModal
         isOpen={isStudentModalOpen}
         onClose={() => setIsStudentModalOpen(false)}
         onAdd={handleAddStudent}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

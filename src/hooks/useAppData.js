@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from './useAuth';
 import { generateId } from '../utils/constants';
-
-const STORAGE_KEY = 'ogrenci_puanlama_data_v2';
 
 // Varsayılan puanlama kriterleri
 const DEFAULT_CRITERIA = [
@@ -12,31 +11,6 @@ const DEFAULT_CRITERIA = [
     { id: 'davranis', name: 'Davranış', maxScore: 20, icon: '⭐' },
     { id: 'defter_kontrol', name: 'Defter Kontrol', maxScore: 20, icon: '✅' }
 ];
-
-// localStorage'dan veri oku
-const loadFromStorage = () => {
-    try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        if (data) {
-            return JSON.parse(data);
-        }
-    } catch (error) {
-        console.error('localStorage okuma hatası:', error);
-    }
-    return {
-        classes: [],
-        criteria: DEFAULT_CRITERIA
-    };
-};
-
-// localStorage'a veri yaz
-const saveToStorage = (data) => {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-        console.error('localStorage yazma hatası:', error);
-    }
-};
 
 // Varsayılan puanları oluştur (dinamik kriterlere göre)
 const getDefaultScores = (criteria) => {
@@ -53,28 +27,36 @@ const calculateTotal = (scores) => {
 };
 
 export const useAppData = () => {
+    const { user, getUserData, saveUserData, isAuthenticated } = useAuth();
     const [classes, setClasses] = useState([]);
     const [criteria, setCriteria] = useState(DEFAULT_CRITERIA);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // İlk yükleme
+    // Kullanıcı değiştiğinde verileri yükle
     useEffect(() => {
-        const data = loadFromStorage();
-        setClasses(data.classes || []);
-        setCriteria(data.criteria || DEFAULT_CRITERIA);
-        setIsLoaded(true);
-    }, []);
+        if (isAuthenticated && user) {
+            const data = getUserData();
+            if (data) {
+                setClasses(data.classes || []);
+                setCriteria(data.criteria || DEFAULT_CRITERIA);
+            }
+            setIsLoaded(true);
+        } else {
+            setClasses([]);
+            setCriteria(DEFAULT_CRITERIA);
+            setIsLoaded(false);
+        }
+    }, [isAuthenticated, user, getUserData]);
 
     // Değişiklikleri kaydet
     useEffect(() => {
-        if (isLoaded) {
-            saveToStorage({ classes, criteria });
+        if (isLoaded && isAuthenticated) {
+            saveUserData({ classes, criteria });
         }
-    }, [classes, criteria, isLoaded]);
+    }, [classes, criteria, isLoaded, isAuthenticated, saveUserData]);
 
     // ========== SINIF İŞLEMLERİ ==========
 
-    // Yeni sınıf ekle
     const addClass = useCallback((name) => {
         const newClass = {
             id: generateId(),
@@ -86,26 +68,22 @@ export const useAppData = () => {
         return newClass;
     }, []);
 
-    // Sınıf sil
     const deleteClass = useCallback((classId) => {
         setClasses(prev => prev.filter(c => c.id !== classId));
     }, []);
 
-    // Sınıf adını güncelle
     const updateClassName = useCallback((classId, name) => {
         setClasses(prev => prev.map(c =>
             c.id === classId ? { ...c, name: name.trim() } : c
         ));
     }, []);
 
-    // Sınıfı ID ile bul
     const getClass = useCallback((classId) => {
         return classes.find(c => c.id === classId);
     }, [classes]);
 
     // ========== ÖĞRENCİ İŞLEMLERİ ==========
 
-    // Sınıfa öğrenci ekle
     const addStudent = useCallback((classId, name) => {
         const newStudent = {
             id: generateId(),
@@ -123,7 +101,6 @@ export const useAppData = () => {
         return newStudent;
     }, [criteria]);
 
-    // Öğrenci sil
     const deleteStudent = useCallback((classId, studentId) => {
         setClasses(prev => prev.map(c => {
             if (c.id !== classId) return c;
@@ -131,14 +108,12 @@ export const useAppData = () => {
         }));
     }, []);
 
-    // Öğrenciyi bul
     const getStudent = useCallback((classId, studentId) => {
         const classObj = classes.find(c => c.id === classId);
         if (!classObj) return null;
         return classObj.students.find(s => s.id === studentId);
     }, [classes]);
 
-    // Puan güncelle
     const updateScore = useCallback((classId, studentId, criteriaId, score) => {
         setClasses(prev => prev.map(c => {
             if (c.id !== classId) return c;
@@ -161,7 +136,6 @@ export const useAppData = () => {
         }));
     }, [criteria]);
 
-    // Sınıftaki öğrencileri ara
     const searchStudents = useCallback((classId, query) => {
         const classObj = classes.find(c => c.id === classId);
         if (!classObj) return [];
@@ -175,7 +149,6 @@ export const useAppData = () => {
 
     // ========== KRİTER İŞLEMLERİ ==========
 
-    // Kriter ekle
     const addCriteria = useCallback((name, maxScore, icon = '📌') => {
         const newCriteria = {
             id: generateId(),
@@ -185,7 +158,6 @@ export const useAppData = () => {
         };
         setCriteria(prev => [...prev, newCriteria]);
 
-        // Tüm öğrencilere yeni kriter için 0 puan ekle
         setClasses(prev => prev.map(c => ({
             ...c,
             students: c.students.map(s => ({
@@ -197,11 +169,9 @@ export const useAppData = () => {
         return newCriteria;
     }, []);
 
-    // Kriter sil
     const deleteCriteria = useCallback((criteriaId) => {
         setCriteria(prev => prev.filter(c => c.id !== criteriaId));
 
-        // Tüm öğrencilerden bu kriteri kaldır ve toplamı yeniden hesapla
         setClasses(prev => prev.map(c => ({
             ...c,
             students: c.students.map(s => {
@@ -212,7 +182,6 @@ export const useAppData = () => {
         })));
     }, []);
 
-    // Kriter güncelle
     const updateCriteria = useCallback((criteriaId, updates) => {
         setCriteria(prev => prev.map(c => {
             if (c.id !== criteriaId) return c;
@@ -223,7 +192,6 @@ export const useAppData = () => {
             return updated;
         }));
 
-        // Max puan değiştiyse öğrenci puanlarını sınırla
         if (updates.maxScore !== undefined) {
             const newMax = Math.max(1, Math.min(100, parseInt(updates.maxScore) || 10));
             setClasses(prev => prev.map(c => ({
@@ -240,36 +208,27 @@ export const useAppData = () => {
         }
     }, []);
 
-    // Kriterleri sıfırla
     const resetCriteria = useCallback(() => {
         setCriteria(DEFAULT_CRITERIA);
     }, []);
 
-    // Max toplam puanı hesapla
     const getMaxTotal = useCallback(() => {
         return criteria.reduce((sum, c) => sum + c.maxScore, 0);
     }, [criteria]);
 
     return {
-        // State
         classes,
         criteria,
         isLoaded,
-
-        // Sınıf işlemleri
         addClass,
         deleteClass,
         updateClassName,
         getClass,
-
-        // Öğrenci işlemleri
         addStudent,
         deleteStudent,
         getStudent,
         updateScore,
         searchStudents,
-
-        // Kriter işlemleri
         addCriteria,
         deleteCriteria,
         updateCriteria,
