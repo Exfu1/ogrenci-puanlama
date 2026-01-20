@@ -1,7 +1,7 @@
 import ScoreInput from './ScoreInput';
-import { SCORE_CRITERIA, getScoreColor, MAX_TOTAL_SCORE } from '../utils/constants';
+import { getScoreColor } from '../utils/constants';
 
-export default function StudentDetail({ student, onBack, onUpdateScore }) {
+export default function StudentDetail({ student, criteria, maxTotal, onBack, onUpdateScore }) {
     if (!student) {
         return (
             <div className="min-h-screen bg-slate-900 flex items-center justify-center">
@@ -11,10 +11,10 @@ export default function StudentDetail({ student, onBack, onUpdateScore }) {
     }
 
     const scoreColor = getScoreColor(student.total);
-    const percentage = Math.round((student.total / MAX_TOTAL_SCORE) * 100);
+    const percentage = maxTotal > 0 ? Math.round((student.total / maxTotal) * 100) : 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 pb-28">
+        <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 pb-8">
             {/* Header */}
             <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50">
                 <div className="max-w-lg mx-auto px-4 py-4">
@@ -48,7 +48,7 @@ export default function StudentDetail({ student, onBack, onUpdateScore }) {
                                     <span className="text-5xl font-bold text-white">
                                         {student.total}
                                     </span>
-                                    <span className="text-white/70 text-lg">/ {MAX_TOTAL_SCORE}</span>
+                                    <span className="text-white/70 text-lg">/ {maxTotal}</span>
                                 </div>
                             </div>
                             <div className="text-right">
@@ -77,16 +77,16 @@ export default function StudentDetail({ student, onBack, onUpdateScore }) {
                 <h2 className="text-lg font-semibold text-white mb-4">Puanlama Kriterleri</h2>
 
                 <div className="space-y-4">
-                    {SCORE_CRITERIA.map((criteria, index) => (
+                    {criteria.map((criteriaItem, index) => (
                         <div
-                            key={criteria.id}
+                            key={criteriaItem.id}
                             style={{ animationDelay: `${index * 100}ms` }}
                         >
                             <ScoreInput
-                                criteria={criteria}
-                                score={student.scores[criteria.id] || 0}
-                                maxScore={criteria.maxScore}
-                                onChange={(value) => onUpdateScore(student.id, criteria.id, value)}
+                                criteria={criteriaItem}
+                                score={student.scores[criteriaItem.id] || 0}
+                                maxScore={criteriaItem.maxScore}
+                                onChange={(value) => onUpdateScore(criteriaItem.id, value)}
                             />
                         </div>
                     ))}
@@ -96,14 +96,13 @@ export default function StudentDetail({ student, onBack, onUpdateScore }) {
                 <div className="mt-8 p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
                     <h3 className="text-white font-medium mb-3">Puan Özeti</h3>
                     <div className="grid grid-cols-2 gap-2">
-                        {SCORE_CRITERIA.map(criteria => {
-                            const score = student.scores[criteria.id] || 0;
-                            const percent = Math.round((score / criteria.maxScore) * 100);
+                        {criteria.map(criteriaItem => {
+                            const score = student.scores[criteriaItem.id] || 0;
                             return (
-                                <div key={criteria.id} className="flex items-center gap-2 text-sm">
-                                    <span>{criteria.icon}</span>
-                                    <span className="text-slate-400 flex-1 truncate">{criteria.name}</span>
-                                    <span className="text-white font-medium">{score}/{criteria.maxScore}</span>
+                                <div key={criteriaItem.id} className="flex items-center gap-2 text-sm">
+                                    <span>{criteriaItem.icon}</span>
+                                    <span className="text-slate-400 flex-1 truncate">{criteriaItem.name}</span>
+                                    <span className="text-white font-medium">{score}/{criteriaItem.maxScore}</span>
                                 </div>
                             );
                         })}

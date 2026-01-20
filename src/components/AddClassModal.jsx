@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function AddStudentModal({ isOpen, onClose, onAdd }) {
+export default function AddClassModal({ isOpen, onClose, onAdd }) {
     const [name, setName] = useState('');
     const [error, setError] = useState('');
     const inputRef = useRef(null);
 
-    // Modal açıldığında input'a focus ver (mobil klavye için)
+    // Modal açıldığında input'a focus ver
     useEffect(() => {
         if (isOpen && inputRef.current) {
+            // Küçük bir gecikme ile mobil klavyeyi tetikle
             setTimeout(() => {
                 inputRef.current.focus();
                 inputRef.current.click();
@@ -21,12 +22,7 @@ export default function AddStudentModal({ isOpen, onClose, onAdd }) {
         const trimmedName = name.trim();
 
         if (!trimmedName) {
-            setError('Lütfen öğrenci adını girin');
-            return;
-        }
-
-        if (trimmedName.length < 2) {
-            setError('İsim en az 2 karakter olmalı');
+            setError('Lütfen sınıf adını girin');
             return;
         }
 
@@ -53,12 +49,10 @@ export default function AddStudentModal({ isOpen, onClose, onAdd }) {
                 className="w-full max-w-md bg-slate-800 rounded-t-3xl sm:rounded-3xl p-6 animate-slide-up"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Handle bar (mobil için) */}
                 <div className="w-12 h-1.5 bg-slate-600 rounded-full mx-auto mb-6 sm:hidden" />
 
-                {/* Başlık */}
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-white">Yeni Öğrenci Ekle</h2>
+                    <h2 className="text-xl font-bold text-white">Yeni Sınıf Ekle</h2>
                     <button
                         onClick={handleClose}
                         className="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors"
@@ -69,11 +63,10 @@ export default function AddStudentModal({ isOpen, onClose, onAdd }) {
                     </button>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-slate-400 mb-2">
-                            Öğrenci Adı
+                            Sınıf Adı
                         </label>
                         <input
                             ref={inputRef}
@@ -83,8 +76,7 @@ export default function AddStudentModal({ isOpen, onClose, onAdd }) {
                                 setName(e.target.value);
                                 setError('');
                             }}
-                            placeholder="Adı ve soyadı girin..."
-                            autoFocus
+                            placeholder="Örn: 5-A, 6. Sınıf..."
                             className="w-full h-14 px-4 rounded-xl bg-slate-900 border-2 border-slate-600 focus:border-indigo-500 text-white placeholder-slate-500 outline-none transition-all text-lg"
                         />
                         {error && (
@@ -92,7 +84,6 @@ export default function AddStudentModal({ isOpen, onClose, onAdd }) {
                         )}
                     </div>
 
-                    {/* Butonlar */}
                     <div className="flex gap-3 mt-6">
                         <button
                             type="button"

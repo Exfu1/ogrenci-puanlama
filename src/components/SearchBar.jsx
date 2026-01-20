@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function SearchBar({ onSearch }) {
+export default function SearchBar({ onSearch, placeholder = "Ara..." }) {
     const [query, setQuery] = useState('');
 
     const handleChange = (e) => {
@@ -28,7 +28,7 @@ export default function SearchBar({ onSearch }) {
                 type="text"
                 value={query}
                 onChange={handleChange}
-                placeholder="Öğrenci ara..."
+                placeholder={placeholder}
                 className="w-full h-12 pl-12 pr-12 rounded-xl bg-slate-800/80 border border-slate-700/50 text-white placeholder-slate-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
 

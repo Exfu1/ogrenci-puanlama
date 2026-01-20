@@ -2,8 +2,10 @@ import { useState } from 'react';
 import StudentCard from './StudentCard';
 import SearchBar from './SearchBar';
 
-export default function StudentList({ students, onSelectStudent, onDeleteStudent }) {
+export default function StudentList({ classObj, criteria, onBack, onSelectStudent, onDeleteStudent }) {
     const [searchQuery, setSearchQuery] = useState('');
+
+    const students = classObj?.students || [];
 
     const filteredStudents = searchQuery.trim()
         ? students.filter(s =>
@@ -16,19 +18,27 @@ export default function StudentList({ students, onSelectStudent, onDeleteStudent
             {/* Header */}
             <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50 px-4 pt-6 pb-4">
                 <div className="max-w-lg mx-auto">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 className="text-2xl font-bold text-white">Öğrenciler</h1>
+                    <div className="flex items-center gap-4 mb-4">
+                        <button
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors"
+                        >
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <div className="flex-1">
+                            <h1 className="text-2xl font-bold text-white">{classObj?.name}</h1>
                             <p className="text-slate-400 text-sm mt-1">
-                                {students.length} öğrenci kayıtlı
+                                {students.length} öğrenci
                             </p>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                            <span className="text-2xl">📚</span>
+                            <span className="text-2xl">📁</span>
                         </div>
                     </div>
 
-                    <SearchBar onSearch={setSearchQuery} />
+                    <SearchBar onSearch={setSearchQuery} placeholder="Öğrenci ara..." />
                 </div>
             </div>
 
@@ -43,7 +53,7 @@ export default function StudentList({ students, onSelectStudent, onDeleteStudent
                             Henüz öğrenci yok
                         </h3>
                         <p className="text-slate-400 text-sm max-w-xs mx-auto">
-                            Alt menüdeki + butonuna tıklayarak ilk öğrencinizi ekleyin
+                            Alt menüdeki + butonuna tıklayarak öğrenci ekleyin
                         </p>
                     </div>
                 ) : filteredStudents.length === 0 ? (
