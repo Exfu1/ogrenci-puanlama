@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import Statistics from './Statistics';
 
-export default function Settings({ onBack, criteria, onAddCriteria, onUpdateCriteria, onDeleteCriteria, onResetCriteria, classCount, studentCount }) {
+export default function Settings({ onBack, criteria, classes, onAddCriteria, onUpdateCriteria, onDeleteCriteria, onResetCriteria, classCount, studentCount }) {
     const [isAddingCriteria, setIsAddingCriteria] = useState(false);
     const [newCriteriaName, setNewCriteriaName] = useState('');
     const [newCriteriaMax, setNewCriteriaMax] = useState('10');
@@ -95,6 +96,9 @@ export default function Settings({ onBack, criteria, onAddCriteria, onUpdateCrit
                         </div>
                     </div>
                 </div>
+
+                {/* Detaylı İstatistikler */}
+                <Statistics classes={classes} criteria={criteria} />
 
                 {/* Puanlama Kriterleri */}
                 <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50">

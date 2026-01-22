@@ -162,6 +162,7 @@ function AppContent() {
         <Settings
           onBack={() => setCurrentPage('classes')}
           criteria={criteria}
+          classes={classes}
           onAddCriteria={addCriteria}
           onUpdateCriteria={updateCriteria}
           onDeleteCriteria={deleteCriteria}
