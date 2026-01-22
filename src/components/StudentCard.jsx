@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getScoreColor } from '../utils/constants';
 
-export default function StudentCard({ student, onSelect, onDelete }) {
+export default function StudentCard({ student, onSelect, onDelete, isDraggable, onDragStart, onDragEnd }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [touchStart, setTouchStart] = useState(null);
     const [touchEnd, setTouchEnd] = useState(null);
@@ -44,6 +44,12 @@ export default function StudentCard({ student, onSelect, onDelete }) {
         setShowDeleteConfirm(false);
     };
 
+    const handleDragStart = (e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', student.id);
+        onDragStart && onDragStart();
+    };
+
     return (
         <div
             className="relative overflow-hidden animate-slide-up"
@@ -54,6 +60,9 @@ export default function StudentCard({ student, onSelect, onDelete }) {
                 e.preventDefault();
                 handleLongPress();
             }}
+            draggable={isDraggable}
+            onDragStart={handleDragStart}
+            onDragEnd={onDragEnd}
         >
             <div
                 onClick={() => !showDeleteConfirm && onSelect(student.id)}
@@ -66,14 +75,33 @@ export default function StudentCard({ student, onSelect, onDelete }) {
         `}
             >
                 <div className="flex items-center justify-between">
-                    {/* Sol: İsim */}
-                    <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-semibold text-lg truncate">
-                            {student.name}
-                        </h3>
-                        <p className="text-slate-400 text-sm mt-1">
-                            Puanı görüntüle →
-                        </p>
+                    {/* Sol: Drag handle + İsim */}
+                    <div className="flex-1 min-w-0 flex items-center gap-3">
+                        {/* Drag handle */}
+                        {isDraggable && (
+                            <div className="drag-handle flex flex-col gap-0.5 p-1 -ml-1 text-slate-500 hover:text-slate-300 transition-colors">
+                                <div className="flex gap-0.5">
+                                    <div className="w-1 h-1 bg-current rounded-full"></div>
+                                    <div className="w-1 h-1 bg-current rounded-full"></div>
+                                </div>
+                                <div className="flex gap-0.5">
+                                    <div className="w-1 h-1 bg-current rounded-full"></div>
+                                    <div className="w-1 h-1 bg-current rounded-full"></div>
+                                </div>
+                                <div className="flex gap-0.5">
+                                    <div className="w-1 h-1 bg-current rounded-full"></div>
+                                    <div className="w-1 h-1 bg-current rounded-full"></div>
+                                </div>
+                            </div>
+                        )}
+                        <div>
+                            <h3 className="text-white font-semibold text-lg truncate">
+                                {student.name}
+                            </h3>
+                            <p className="text-slate-400 text-sm mt-1">
+                                Puanı görüntüle →
+                            </p>
+                        </div>
                     </div>
 
                     {/* Sağ: Toplam Puan */}

@@ -82,6 +82,16 @@ export const useAppData = () => {
         return classes.find(c => c.id === classId);
     }, [classes]);
 
+    // Sınıfları yeniden sırala (drag-drop için)
+    const reorderClasses = useCallback((startIndex, endIndex) => {
+        setClasses(prev => {
+            const result = Array.from(prev);
+            const [removed] = result.splice(startIndex, 1);
+            result.splice(endIndex, 0, removed);
+            return result;
+        });
+    }, []);
+
     // ========== ÖĞRENCİ İŞLEMLERİ ==========
 
     const addStudent = useCallback((classId, name) => {
@@ -146,6 +156,17 @@ export const useAppData = () => {
             s.name.toLowerCase().includes(lowerQuery)
         );
     }, [classes]);
+
+    // Öğrencileri yeniden sırala (drag-drop için)
+    const reorderStudents = useCallback((classId, startIndex, endIndex) => {
+        setClasses(prev => prev.map(c => {
+            if (c.id !== classId) return c;
+            const students = Array.from(c.students);
+            const [removed] = students.splice(startIndex, 1);
+            students.splice(endIndex, 0, removed);
+            return { ...c, students };
+        }));
+    }, []);
 
     // ========== KRİTER İŞLEMLERİ ==========
 
@@ -224,11 +245,13 @@ export const useAppData = () => {
         deleteClass,
         updateClassName,
         getClass,
+        reorderClasses,
         addStudent,
         deleteStudent,
         getStudent,
         updateScore,
         searchStudents,
+        reorderStudents,
         addCriteria,
         deleteCriteria,
         updateCriteria,

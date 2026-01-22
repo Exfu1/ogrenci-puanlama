@@ -2,8 +2,10 @@ import { useState } from 'react';
 import SearchBar from './SearchBar';
 import { getScoreColor } from '../utils/constants';
 
-export default function ClassList({ classes, onSelectClass, onDeleteClass, displayName, onLogout }) {
+export default function ClassList({ classes, onSelectClass, onDeleteClass, onReorderClasses, displayName, onLogout }) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
 
     const filteredClasses = searchQuery.trim()
         ? classes.filter(c =>
@@ -16,6 +18,42 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, displ
         if (!classObj.students || classObj.students.length === 0) return 0;
         const total = classObj.students.reduce((sum, s) => sum + s.total, 0);
         return Math.round(total / classObj.students.length);
+    };
+
+    // Drag handlers
+    const handleDragStart = (e, index) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index);
+    };
+
+    const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragOverIndex !== index) {
+            setDragOverIndex(index);
+        }
+    };
+
+    const handleDragLeave = () => {
+        setDragOverIndex(null);
+    };
+
+    const handleDrop = (e, dropIndex) => {
+        e.preventDefault();
+        const dragIndex = draggedIndex;
+
+        if (dragIndex !== null && dragIndex !== dropIndex) {
+            onReorderClasses(dragIndex, dropIndex);
+        }
+
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
+    const handleDragEnd = () => {
+        setDraggedIndex(null);
+        setDragOverIndex(null);
     };
 
     return (
@@ -88,12 +126,19 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, displ
                         {filteredClasses.map((classObj, index) => {
                             const average = getClassAverage(classObj);
                             const scoreColor = getScoreColor(average);
+                            const originalIndex = classes.findIndex(c => c.id === classObj.id);
 
                             return (
                                 <div
                                     key={classObj.id}
                                     style={{ animationDelay: `${index * 50}ms` }}
-                                    className="animate-slide-up"
+                                    className={`animate-slide-up ${draggedIndex === originalIndex ? 'dragging' : ''} ${dragOverIndex === originalIndex ? 'drag-over rounded-2xl' : ''}`}
+                                    draggable={!searchQuery.trim()}
+                                    onDragStart={(e) => handleDragStart(e, originalIndex)}
+                                    onDragOver={(e) => handleDragOver(e, originalIndex)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, originalIndex)}
+                                    onDragEnd={handleDragEnd}
                                 >
                                     <ClassCard
                                         classObj={classObj}
@@ -101,6 +146,7 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, displ
                                         scoreColor={scoreColor}
                                         onSelect={onSelectClass}
                                         onDelete={onDeleteClass}
+                                        isDraggable={!searchQuery.trim()}
                                     />
                                 </div>
                             );
@@ -112,7 +158,7 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, displ
     );
 }
 
-function ClassCard({ classObj, average, scoreColor, onSelect, onDelete }) {
+function ClassCard({ classObj, average, scoreColor, onSelect, onDelete, isDraggable }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleDelete = (e) => {
@@ -146,6 +192,23 @@ function ClassCard({ classObj, average, scoreColor, onSelect, onDelete }) {
                 <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3">
+                            {/* Drag handle */}
+                            {isDraggable && (
+                                <div className="drag-handle flex flex-col gap-0.5 p-1 -ml-1 text-slate-500 hover:text-slate-300 transition-colors">
+                                    <div className="flex gap-0.5">
+                                        <div className="w-1 h-1 bg-current rounded-full"></div>
+                                        <div className="w-1 h-1 bg-current rounded-full"></div>
+                                    </div>
+                                    <div className="flex gap-0.5">
+                                        <div className="w-1 h-1 bg-current rounded-full"></div>
+                                        <div className="w-1 h-1 bg-current rounded-full"></div>
+                                    </div>
+                                    <div className="flex gap-0.5">
+                                        <div className="w-1 h-1 bg-current rounded-full"></div>
+                                        <div className="w-1 h-1 bg-current rounded-full"></div>
+                                    </div>
+                                </div>
+                            )}
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
                                 <span className="text-2xl">📁</span>
                             </div>

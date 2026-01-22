@@ -20,10 +20,12 @@ function AppContent() {
     addClass,
     deleteClass,
     getClass,
+    reorderClasses,
     addStudent,
     deleteStudent,
     getStudent,
     updateScore,
+    reorderStudents,
     addCriteria,
     deleteCriteria,
     updateCriteria,
@@ -127,6 +129,7 @@ function AppContent() {
           classes={classes}
           onSelectClass={handleSelectClass}
           onDeleteClass={deleteClass}
+          onReorderClasses={reorderClasses}
           displayName={getDisplayName()}
           onLogout={logout}
         />
@@ -139,6 +142,7 @@ function AppContent() {
           onBack={handleBack}
           onSelectStudent={handleSelectStudent}
           onDeleteStudent={(studentId) => deleteStudent(selectedClassId, studentId)}
+          onReorderStudents={(startIndex, endIndex) => reorderStudents(selectedClassId, startIndex, endIndex)}
         />
       )}
 
