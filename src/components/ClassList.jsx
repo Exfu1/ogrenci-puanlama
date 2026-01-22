@@ -160,10 +160,35 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, onReo
 
 function ClassCard({ classObj, average, scoreColor, onSelect, onDelete, isDraggable }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+
+    // Swipe detection
+    const minSwipeDistance = 100;
+
+    const onTouchStart = (e) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+
+        if (isLeftSwipe) {
+            setShowDeleteConfirm(true);
+        }
+    };
 
     const handleDelete = (e) => {
         e.stopPropagation();
         onDelete(classObj.id);
+        setShowDeleteConfirm(false);
     };
 
     const handleCancelDelete = (e) => {
@@ -174,6 +199,9 @@ function ClassCard({ classObj, average, scoreColor, onSelect, onDelete, isDragga
     return (
         <div
             className="relative overflow-hidden"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
             onContextMenu={(e) => {
                 e.preventDefault();
                 setShowDeleteConfirm(true);
