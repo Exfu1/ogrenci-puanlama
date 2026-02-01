@@ -10,9 +10,10 @@ import Settings from './components/Settings';
 import AddClassModal from './components/AddClassModal';
 import AddStudentModal from './components/AddStudentModal';
 import BottomNavbar from './components/BottomNavbar';
+import StorageError from './components/StorageError';
 
 function AppContent() {
-  const { isAuthenticated, isLoading: authLoading, logout, getDisplayName } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, logout, getDisplayName, storageError } = useAuth();
   const {
     classes,
     criteria,
@@ -52,6 +53,11 @@ function AppContent() {
         </div>
       </div>
     );
+  }
+
+  // Storage hatası
+  if (storageError) {
+    return <StorageError message={storageError} />;
   }
 
   // Giriş yapmamış

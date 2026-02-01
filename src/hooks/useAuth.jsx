@@ -6,6 +6,18 @@ const USERS_STORAGE_KEY = 'ogrenci_users';
 // Auth context
 const AuthContext = createContext(null);
 
+// Check if localStorage is available (important for iOS Safari private mode)
+const isStorageAvailable = () => {
+    try {
+        const test = '__storage_test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -16,35 +28,59 @@ export const useAuth = () => {
 
 // Kullanıcıları localStorage'dan oku
 const loadUsers = () => {
+    if (!isStorageAvailable()) {
+        console.warn('localStorage is not available');
+        return {};
+    }
     try {
         const data = localStorage.getItem(USERS_STORAGE_KEY);
         return data ? JSON.parse(data) : {};
-    } catch {
+    } catch (e) {
+        console.error('Error loading users:', e);
         return {};
     }
 };
 
 // Kullanıcıları kaydet
 const saveUsers = (users) => {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    if (!isStorageAvailable()) {
+        throw new Error('localStorage kullanılamıyor. Lütfen gizli gezinme modunu kapatın.');
+    }
+    try {
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    } catch (e) {
+        console.error('Error saving users:', e);
+        throw new Error('Veri kaydedilemedi. Depolama alanı dolmuş olabilir.');
+    }
 };
 
 // Oturum bilgisini oku
 const loadSession = () => {
+    if (!isStorageAvailable()) {
+        return null;
+    }
     try {
         const data = localStorage.getItem(AUTH_STORAGE_KEY);
         return data ? JSON.parse(data) : null;
-    } catch {
+    } catch (e) {
+        console.error('Error loading session:', e);
         return null;
     }
 };
 
 // Oturum bilgisini kaydet
 const saveSession = (session) => {
-    if (session) {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-    } else {
-        localStorage.removeItem(AUTH_STORAGE_KEY);
+    if (!isStorageAvailable()) {
+        return;
+    }
+    try {
+        if (session) {
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+        } else {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+        }
+    } catch (e) {
+        console.error('Error saving session:', e);
     }
 };
 
@@ -62,9 +98,15 @@ const simpleHash = (str) => {
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [storageError, setStorageError] = useState(null);
 
     // İlk yükleme - oturum kontrolü
     useEffect(() => {
+        if (!isStorageAvailable()) {
+            setStorageError('localStorage kullanılamıyor. Lütfen gizli gezinme modunu kapatın ve sayfayı yenileyin.');
+            setIsLoading(false);
+            return;
+        }
         const session = loadSession();
         if (session) {
             const users = loadUsers();
@@ -166,6 +208,7 @@ export function AuthProvider({ children }) {
         user,
         isLoading,
         isAuthenticated: !!user,
+        storageError,
         signup,
         login,
         logout,

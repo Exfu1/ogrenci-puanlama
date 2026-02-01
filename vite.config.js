@@ -18,8 +18,15 @@ export default defineConfig({
         background_color: '#0f172a',
         display: 'standalone',
         orientation: 'portrait',
+        scope: '/',
         start_url: '/',
+        prefer_related_applications: false,
         icons: [
+          {
+            src: 'icons/app-icon.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
           {
             src: 'icons/app-icon.png',
             sizes: '512x512',
@@ -27,8 +34,9 @@ export default defineConfig({
           },
           {
             src: 'icons/app-icon.png',
-            sizes: '192x192',
-            type: 'image/png'
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'icons/app-icon.png',
