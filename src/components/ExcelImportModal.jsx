@@ -141,7 +141,7 @@ export default function ExcelImportModal({ isOpen, onClose, onImport }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-slate-900 sm:bg-black/60 sm:backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-4 bg-slate-900 sm:bg-black/60 sm:backdrop-blur-sm">
             <div className="bg-slate-800 w-full h-full sm:h-auto sm:max-h-[85vh] sm:rounded-2xl sm:max-w-md shadow-xl border-none sm:border border-slate-700/50 flex flex-col">
                 {/* Header */}
                 <div className="p-6 border-b border-slate-700/50 flex justify-between items-center flex-none">
