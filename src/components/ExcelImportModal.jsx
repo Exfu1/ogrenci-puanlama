@@ -142,9 +142,9 @@ export default function ExcelImportModal({ isOpen, onClose, onImport }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md shadow-xl border border-slate-700/50 flex flex-col max-h-[90vh]">
+            <div className="bg-slate-800 rounded-2xl w-full max-w-md shadow-xl border border-slate-700/50 flex flex-col max-h-[85vh]">
                 {/* Header */}
-                <div className="p-6 border-b border-slate-700/50 flex justify-between items-center">
+                <div className="p-6 border-b border-slate-700/50 flex justify-between items-center flex-none">
                     <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                         Excel'den İçe Aktar
                     </h2>
@@ -156,14 +156,14 @@ export default function ExcelImportModal({ isOpen, onClose, onImport }) {
                 </div>
 
                 {/* Content */}
-                <div className="p-6 overflow-y-auto custom-scrollbar">
+                <div className="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
 
                     {/* File Input */}
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${file
-                                ? 'border-emerald-500/50 bg-emerald-500/5'
-                                : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
+                        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${file
+                            ? 'border-emerald-500/50 bg-emerald-500/5'
+                            : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
                             }`}
                     >
                         <input
@@ -174,17 +174,17 @@ export default function ExcelImportModal({ isOpen, onClose, onImport }) {
                             className="hidden"
                         />
 
-                        <div className="flex flex-col items-center gap-3">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${file ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'
+                        <div className="flex flex-col items-center gap-2">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${file ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'
                                 }`}>
                                 {file ? '📊' : '📁'}
                             </div>
                             <div>
-                                <p className="font-medium text-white">
+                                <p className="font-medium text-white text-sm">
                                     {file ? file.name : 'Excel Dosyası Seçin'}
                                 </p>
-                                <p className="text-sm text-slate-400 mt-1">
-                                    {file ? `${previewData.length} öğrenci bulundu` : 'veya sürükleyip bırakın'}
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    {file ? `${previewData.length} öğrenci` : 'veya sürükleyip bırakın'}
                                 </p>
                             </div>
                         </div>
@@ -201,29 +201,29 @@ export default function ExcelImportModal({ isOpen, onClose, onImport }) {
 
                     {/* Class Name Input */}
                     {file && (
-                        <div className="mt-6 space-y-4">
+                        <div className="mt-5 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-400 mb-2">Sınıf Adı</label>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">Sınıf Adı</label>
                                 <input
                                     type="text"
                                     value={className}
                                     onChange={(e) => setClassName(e.target.value)}
                                     placeholder="Örn: 6D"
-                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium"
+                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium text-sm"
                                 />
                             </div>
 
                             {/* Preview List */}
                             {previewData.length > 0 && (
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-2">
-                                        Öğrenci Listesi Önizleme ({previewData.length})
+                                <div className="flex flex-col flex-1 min-h-0">
+                                    <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                                        Öğrenci Listesi ({previewData.length})
                                     </label>
-                                    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                                    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden overflow-y-auto custom-scrollbar max-h-40">
                                         {previewData.map((name, index) => (
-                                            <div k={index} className="px-4 py-2 border-b border-slate-700/50 last:border-0 text-sm text-slate-300 flex items-center gap-2">
-                                                <span className="text-slate-600 font-mono text-xs w-6">{index + 1}.</span>
-                                                {name}
+                                            <div k={index} className="px-3 py-2 border-b border-slate-700/50 last:border-0 text-sm text-slate-300 flex items-center gap-2">
+                                                <span className="text-slate-600 font-mono text-xs w-5">{index + 1}.</span>
+                                                <span className="truncate">{name}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -234,29 +234,29 @@ export default function ExcelImportModal({ isOpen, onClose, onImport }) {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-slate-700/50 flex gap-3">
+                <div className="p-6 border-t border-slate-700/50 flex gap-3 flex-none bg-slate-800 rounded-b-2xl">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 px-4 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 font-medium transition-all"
+                        className="flex-1 py-2.5 px-4 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 font-medium transition-all text-sm"
                     >
                         İptal
                     </button>
                     <button
                         onClick={handleImport}
                         disabled={!file || !className.trim() || previewData.length === 0 || isLoading}
-                        className={`flex-1 py-3 px-4 rounded-xl font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all ${!file || !className.trim() || previewData.length === 0 || isLoading
-                                ? 'bg-slate-700 text-slate-500 cursor-not-allowed shadow-none'
-                                : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:shadow-emerald-500/40 active:scale-95'
+                        className={`flex-1 py-2.5 px-4 rounded-xl font-semibold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all text-sm ${!file || !className.trim() || previewData.length === 0 || isLoading
+                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed shadow-none'
+                            : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:shadow-emerald-500/40 active:scale-95'
                             }`}
                     >
                         {isLoading ? (
                             <>
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 <span>İşleniyor...</span>
                             </>
                         ) : (
                             <>
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 <span>İçe Aktar</span>
