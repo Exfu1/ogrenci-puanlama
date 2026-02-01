@@ -18,6 +18,7 @@ function AppContent() {
     criteria,
     isLoaded,
     addClass,
+    addClassWithStudents,
     deleteClass,
     getClass,
     reorderClasses,
@@ -128,6 +129,8 @@ function AppContent() {
         <ClassList
           classes={classes}
           onSelectClass={handleSelectClass}
+          onAddClass={addClass}
+          onAddClassWithStudents={addClassWithStudents}
           onDeleteClass={deleteClass}
           onReorderClasses={reorderClasses}
           displayName={getDisplayName()}

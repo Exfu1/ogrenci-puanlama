@@ -68,6 +68,27 @@ export const useAppData = () => {
         return newClass;
     }, []);
 
+    const addClassWithStudents = useCallback((name, studentNames) => {
+        const classId = generateId();
+        const newStudents = studentNames.map(studentName => ({
+            id: generateId(),
+            name: studentName.trim(),
+            scores: getDefaultScores(criteria),
+            total: 0,
+            createdAt: new Date().toISOString()
+        }));
+
+        const newClass = {
+            id: classId,
+            name: name.trim(),
+            students: newStudents,
+            createdAt: new Date().toISOString()
+        };
+
+        setClasses(prev => [...prev, newClass]);
+        return newClass;
+    }, [criteria]);
+
     const deleteClass = useCallback((classId) => {
         setClasses(prev => prev.filter(c => c.id !== classId));
     }, []);
@@ -242,6 +263,7 @@ export const useAppData = () => {
         criteria,
         isLoaded,
         addClass,
+        addClassWithStudents,
         deleteClass,
         updateClassName,
         getClass,

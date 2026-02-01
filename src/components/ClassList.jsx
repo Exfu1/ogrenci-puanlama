@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import SearchBar from './SearchBar';
+import ExcelImportModal from './ExcelImportModal';
 import { getScoreColor } from '../utils/constants';
 
-export default function ClassList({ classes, onSelectClass, onDeleteClass, onReorderClasses, displayName, onLogout }) {
+export default function ClassList({ classes, onSelectClass, onDeleteClass, onAddClassWithStudents, onReorderClasses, displayName, onLogout }) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [dragOverIndex, setDragOverIndex] = useState(null);
 
@@ -56,6 +58,12 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, onReo
         setDragOverIndex(null);
     };
 
+    const handleImport = (className, studentNames) => {
+        if (onAddClassWithStudents) {
+            onAddClassWithStudents(className, studentNames);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 pb-28">
             {/* Header */}
@@ -86,14 +94,26 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, onReo
                                 {classes.length} sınıf kayıtlı
                             </p>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                            <span className="text-2xl">🏫</span>
-                        </div>
+                        <span className="text-2xl">🏫</span>
                     </div>
+                </div>
 
-                    <SearchBar onSearch={setSearchQuery} placeholder="Sınıf ara..." />
+                <div className="flex gap-2 mb-4">
+                    <div className="flex-1">
+                        <SearchBar onSearch={setSearchQuery} placeholder="Sınıf ara..." />
+                    </div>
+                    <button
+                        onClick={() => setIsImportModalOpen(true)}
+                        className="bg-emerald-500/10 text-emerald-400 px-4 rounded-xl flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-300 transition-all active:scale-95 border border-emerald-500/20"
+                        title="Excel'den İçe Aktar"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
                 </div>
             </div>
+
 
             {/* Sınıf Listesi */}
             <div className="max-w-lg mx-auto px-4 py-4">
@@ -154,7 +174,14 @@ export default function ClassList({ classes, onSelectClass, onDeleteClass, onReo
                     </div>
                 )}
             </div>
-        </div>
+
+
+            <ExcelImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onImport={handleImport}
+            />
+        </div >
     );
 }
 
